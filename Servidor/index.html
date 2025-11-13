@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlantGuard</title>
+    <link rel="stylesheet" href="./assets/styles/style.css">
+</head>
+
+<body>
+    <h1>Monitor de Luminosidade para Plantas</h1>
+    <p>A3 - Microcontroladores: Arduino + Servidor Web</p>
+
+    <div class="card">
+        <h2>Leitura Atual</h2>
+        <div class="valor" id="ldrValue">--</div>
+        <div class="status">
+            Monitoramento:
+            <span id="monitorBadge" class="badge badge-off">Desativado</span>
+        </div>
+        <div class="status">
+            Alarme:
+            <span id="alarmBadge" class="badge badge-off">Desativado</span>
+        </div>
+
+        <div class="buttons">
+            <button onclick="sendCommand('MONITOR_ON')">Ativar monitoramento</button>
+            <button class="danger" onclick="sendCommand('MONITOR_OFF')">Desativar monitoramento</button>
+            <button onclick="sendCommand('ALARM_ON')">Ativar alarme</button>
+            <button class="danger" onclick="sendCommand('ALARM_OFF')">Desativar alarme</button>
+        </div>
+
+        <div class="buttons">
+            <button onclick="requestStatus()">Atualizar status</button>
+        </div>
+
+        <div class="raw">
+            Última mensagem bruta: <span id="rawLine">--</span>
+        </div>
+    </div>
+
+    <script src="./assets/script/script.js"></script>
+
+</body>
+
+</html>
