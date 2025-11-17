@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="style.css">
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="titulo">Controle de iluminação</h1>
+        <div class="dashboard">
+            <div class="dashboard_item luminosidade">
+                <h3>Luminosidade</h3>
+                <div id="container-barra">
+                    <div id="barra"></div>
+                </div>
+                <div class="valor" id="valor">0</div>
+            </div>
+            <div class="dashboard_item controle">
+                <h3>Controle</h3>
+                <button class="botao" id="botao">Abrir Janela</button>
+            </div>
+        </div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="./client.js"></script>
+</body>
+
+</html>
