@@ -17,23 +17,6 @@ botao.addEventListener("click", () => {
     }
 })
 
-// setInterval(() => {
-//     // Substituir valor atual pelo oq vem do socket
-//     const valorAtual = Math.floor(Math.random() * 101);
-//     valor.textContent = valorAtual + '%';
-
-//     if (valorAtual < 20) {
-//         barraProgresso.style.backgroundColor = 'red';
-//     } else if (valorAtual < 40) {
-//         barraProgresso.style.backgroundColor = 'orange';
-//     } else if (valorAtual < 80) {
-//         barraProgresso.style.backgroundColor = 'yellow';
-//     } else {
-//         barraProgresso.style.backgroundColor = 'green';
-//     }
-//     barraProgresso.style.width = valorAtual + '%';
-// }, 2000);
-
 // Receber dados de luminosidade do socket
 socket.on('luminosidade', (data) => {
     const valorAtual = data.valor;

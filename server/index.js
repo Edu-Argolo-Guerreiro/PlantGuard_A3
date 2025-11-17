@@ -35,15 +35,22 @@ io.on('connection', (socket) => {
 
     socket.on('botao_clicado', (data) => {
     console.log('Botão clicado:', data);
+    io.emit('botao_clicado', data.acao);
 });
 
-    const intervalo = setInterval(() => {
-        const valorLuminosidade = Math.floor(Math.random() * 101);
-        socket.emit('luminosidade', { valor: valorLuminosidade });
-    }, 1000);
+    socket.on('luminosidade', (data) => {
+        console.log('Luminosidade recebida:', data.valor);
+        io.emit('luminosidade', { valor: data.valor });
+    });
+
+
+    // const intervalo = setInterval(() => {
+    //     const valorLuminosidade = Math.floor(Math.random() * 101);
+    //     socket.emit('luminosidade', { valor: valorLuminosidade });
+    // }, 1000);
 
     socket.on('disconnect', () => {
-        clearInterval(intervalo);
+        // clearInterval(intervalo);
         console.log(`\n❌ Usuário desconectado: ${socket.id}`);
     });
 });
