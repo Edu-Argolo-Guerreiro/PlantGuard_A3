@@ -2,6 +2,7 @@ import { SerialPort } from 'serialport';
 import { ReadlineParser } from '@serialport/parser-readline';
 import io from 'socket.io-client';
 
+
 const socket = io('http://localhost:3000');
 
 (async function initSerial() {
@@ -24,7 +25,7 @@ const socket = io('http://localhost:3000');
     };
 
     const arduinoPort = findArduinoPort(ports);
-    const defaultPath = process.env.SERIAL_PORT || arduinoPort?.path || (process.platform === 'win32' ? 'COM3' : '/dev/ttyACM0');
+    const defaultPath = process.env.SERIAL_PORT || arduinoPort?.path || (process.platform === 'win32' ? 'COM5' : '/dev/ttyACM0');
 
     console.log('Usando porta:', defaultPath);
 
@@ -50,14 +51,18 @@ const socket = io('http://localhost:3000');
 
     parser.on('data', (data) => {
       console.log(`Dados recebidos do Arduino: ${data}`);
-      const cleanData = parseInt((data || '').trim().split(':')[1]) || 0;
-      socket.emit('luminosidade', { valor: cleanData });
+      // const cleanData = parseInt((data || '').trim().split(':')[1]) || 0;
+
+      // console.log(cleanData); // TESTE 
+      console.log(data); // TESTE 
+
+      socket.emit('luminosidade', { valor: data });
     });
 
     // especificar qual comando para o arduino mexer 
     socket.on('botao_clicado', (comando) => {
       console.log(`Comando recebido do servidor: ${comando}`);
-      port.write(comando + '\n', (err) => {
+      port.write(comando, (err) => {
         if (err) {
           return console.log('Erro ao escrever na serial:', err.message);
         }
@@ -66,11 +71,11 @@ const socket = io('http://localhost:3000');
     });
 
     // Emissão de luminosidade fake
-    setInterval(() => {
-      const valorLuminosidade = Math.floor(Math.random() * 101);
-      socket.emit('luminosidade', { valor: valorLuminosidade });
-      console.log(`Luminosidade enviada: ${valorLuminosidade}`);
-    }, 1000);
+    // setInterval(() => {
+    //   const valorLuminosidade = Math.floor(Math.random() * 101);
+    //   socket.emit('luminosidade', { valor: valorLuminosidade });
+    //   console.log(`Luminosidade enviada: ${valorLuminosidade}`);
+    // }, 1000);
 
   } catch (err) {
     console.error('Falha inicializando serial:', err);
