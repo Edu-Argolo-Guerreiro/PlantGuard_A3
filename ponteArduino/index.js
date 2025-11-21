@@ -51,7 +51,7 @@ const socket = io('http://localhost:3000');
     });
 
     
-    const parser = port.pipe(new ReadlineParser({ delimiter: '\r\n' }));
+    const parser = port.pipe(new ReadlineParser({ delimiter: '\n' }));
 
     // Recebe o valor de luminosidade do Arduino e manda para o servidor socket
     parser.on('data', (data) => {

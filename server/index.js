@@ -52,7 +52,6 @@ io.on('connection', (socket) => {
     });
     // Ouve o evento 'luminosidade' vindo da ponte Arduino
     socket.on('luminosidade', (data) => {
-        console.log('Luminosidade recebida:', data.valor);
         // Re-transmite o valor da luminosidade para todos os clientes (navegadores)
         io.emit('luminosidade', { valor: data.valor });
     });
