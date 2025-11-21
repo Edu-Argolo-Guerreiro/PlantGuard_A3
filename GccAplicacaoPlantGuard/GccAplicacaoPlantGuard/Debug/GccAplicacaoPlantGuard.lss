@@ -88,28 +88,31 @@ Disassembly of section .text:
   8c:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
 
 00000090 <__vector_14>:
-void pisca_led_status(void);
-void verifica_acao_motor(void);
-int ler_sensor_e_atualizar(void);
+void verifica_acao_motor(void);                                               // Verifica e processa comandos recebidos via UART para o motor.
+int ler_sensor_e_atualizar(void);                                             // FunÃ§Ã£o principal da lÃ³gica: lÃª o sensor e atualiza os atuadores (LEDs, buzzer).
 
-// ---------- INTERRUPÇÃO DO TIMER0 (BUZZER) ----------
-ISR(TIMER0_COMPA_vect) {
+// ---------- INTERRUPï¿½ï¿½O DO TIMER0 (BUZZER) ----------
+ISR(TIMER0_COMPA_vect)
+{
   90:	1f 92       	push	r1
   92:	0f 92       	push	r0
   94:	0f b6       	in	r0, 0x3f	; 63
   96:	0f 92       	push	r0
   98:	11 24       	eor	r1, r1
   9a:	8f 93       	push	r24
-    if (alarmOn) {
+    if (alarmOn)
   9c:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
   a0:	88 23       	and	r24, r24
   a2:	21 f0       	breq	.+8      	; 0xac <__vector_14+0x1c>
-        PORTD ^= (1 << BUZZER_PIN);  // Alterna o pino — gera o som
+    {
+        PORTD ^= (1 << BUZZER_PIN); // Alterna o pino ï¿½ gera o som
   a4:	8b b1       	in	r24, 0x0b	; 11
   a6:	80 58       	subi	r24, 0x80	; 128
   a8:	8b b9       	out	0x0b, r24	; 11
   aa:	03 c0       	rjmp	.+6      	; 0xb2 <__vector_14+0x22>
-    } else {
+    }
+    else
+    {
         PORTD &= ~(1 << BUZZER_PIN); // Garante buzzer desligado
   ac:	8b b1       	in	r24, 0x0b	; 11
   ae:	8f 77       	andi	r24, 0x7F	; 127
@@ -124,16 +127,16 @@ ISR(TIMER0_COMPA_vect) {
   bc:	18 95       	reti
 
 000000be <setup_uart>:
-        uart_transmit(*str++);
     }
 }
 
-void setup_uart(unsigned int ubrr) {
-    UBRR0H = (unsigned char)(ubrr >> 8);  // Baud rate parte alta
+void setup_uart(unsigned int ubrr)
+{
+    UBRR0H = (unsigned char)(ubrr >> 8);    // Baud rate parte alta
   be:	90 93 c5 00 	sts	0x00C5, r25	; 0x8000c5 <__TEXT_REGION_LENGTH__+0x7f80c5>
-    UBRR0L = (unsigned char)ubrr;         // Baud rate parte baixa
+    UBRR0L = (unsigned char)ubrr;           // Baud rate parte baixa
   c2:	80 93 c4 00 	sts	0x00C4, r24	; 0x8000c4 <__TEXT_REGION_LENGTH__+0x7f80c4>
-    UCSR0B = (1 << RXEN0) | (1 << TXEN0); // Habilita RX e TX
+    UCSR0B = (1 << RXEN0) | (1 << TXEN0);   // Habilita RX e TX
   c6:	88 e1       	ldi	r24, 0x18	; 24
   c8:	80 93 c1 00 	sts	0x00C1, r24	; 0x8000c1 <__TEXT_REGION_LENGTH__+0x7f80c1>
     UCSR0C = (1 << UCSZ01) | (1 << UCSZ00); // 8 bits
@@ -144,39 +147,43 @@ void setup_uart(unsigned int ubrr) {
 000000d4 <uart_transmit>:
 }
 
-void uart_transmit(unsigned char data) {
-    while (!(UCSR0A & (1 << UDRE0)));  // Espera buffer liberar
+void uart_transmit(unsigned char data)
+{
+    while (!(UCSR0A & (1 << UDRE0)))
   d4:	90 91 c0 00 	lds	r25, 0x00C0	; 0x8000c0 <__TEXT_REGION_LENGTH__+0x7f80c0>
   d8:	95 ff       	sbrs	r25, 5
   da:	fc cf       	rjmp	.-8      	; 0xd4 <uart_transmit>
-    UDR0 = data;                       // Envia o byte
+        ;        // Espera buffer liberar
+    UDR0 = data; // Envia o byte
   dc:	80 93 c6 00 	sts	0x00C6, r24	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7f80c6>
   e0:	08 95       	ret
 
 000000e2 <uart_print_text>:
-        _delay_ms(500);
     }
 }
 
-// ---------- FUNÇÕES UART ----------
-void uart_print_text(const char *str) {
+// ---------- FUNï¿½ï¿½ES UART ----------
+void uart_print_text(const char *str)
+{
   e2:	cf 93       	push	r28
   e4:	df 93       	push	r29
   e6:	ec 01       	movw	r28, r24
-    while (*str) {
+    while (*str)
   e8:	03 c0       	rjmp	.+6      	; 0xf0 <uart_print_text+0xe>
+    {
         uart_transmit(*str++);
   ea:	21 96       	adiw	r28, 0x01	; 1
   ec:	0e 94 6a 00 	call	0xd4	; 0xd4 <uart_transmit>
-    }
 }
 
-// ---------- FUNÇÕES UART ----------
-void uart_print_text(const char *str) {
-    while (*str) {
+// ---------- FUNï¿½ï¿½ES UART ----------
+void uart_print_text(const char *str)
+{
+    while (*str)
   f0:	88 81       	ld	r24, Y
   f2:	81 11       	cpse	r24, r1
   f4:	fa cf       	rjmp	.-12     	; 0xea <uart_print_text+0x8>
+    {
         uart_transmit(*str++);
     }
 }
@@ -185,12 +192,12 @@ void uart_print_text(const char *str) {
   fa:	08 95       	ret
 
 000000fc <uart_available>:
-    while (!(UCSR0A & (1 << UDRE0)));  // Espera buffer liberar
-    UDR0 = data;                       // Envia o byte
+    UDR0 = data; // Envia o byte
 }
 
-int uart_available(void) {
-    return (UCSR0A & (1 << RXC0));     // Retorna 1 se chegou dado
+int uart_available(void)
+{
+    return (UCSR0A & (1 << RXC0)); // Retorna 1 se chegou dado
   fc:	80 91 c0 00 	lds	r24, 0x00C0	; 0x8000c0 <__TEXT_REGION_LENGTH__+0x7f80c0>
  100:	80 78       	andi	r24, 0x80	; 128
 }
@@ -200,13 +207,14 @@ int uart_available(void) {
 00000106 <setup_gpio>:
 
 // ---------- GPIO ----------
-void setup_gpio(void) {
-    // LEDs e servo como saída
+void setup_gpio(void)
+{
+    // LEDs e servo como saï¿½da
     DDRB |= (1 << LED_VERDE) | (1 << SERVO_PIN) | (1 << LED_VERMELHO) | (1 << LED_ACAO);
  106:	84 b1       	in	r24, 0x04	; 4
  108:	87 62       	ori	r24, 0x27	; 39
  10a:	84 b9       	out	0x04, r24	; 4
-    
+
     // LEDs e buzzer no PORTD
     DDRD |= (1 << LED_STATUS) | (1 << LED_AMARELO) | (1 << BUZZER_PIN);
  10c:	8a b1       	in	r24, 0x0a	; 10
@@ -223,8 +231,9 @@ void setup_gpio(void) {
 }
 
 // ---------- ADC ----------
-void setup_adc(void) {
-    ADMUX = (1 << REFS0); // Referência AVCC
+void setup_adc(void)
+{
+    ADMUX = (1 << REFS0);                                              // Referï¿½ncia AVCC
  11a:	80 e4       	ldi	r24, 0x40	; 64
  11c:	80 93 7c 00 	sts	0x007C, r24	; 0x80007c <__TEXT_REGION_LENGTH__+0x7f807c>
     ADCSRA = (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0); // Prescaler 128
@@ -235,7 +244,8 @@ void setup_adc(void) {
 00000128 <read_adc>:
 }
 
-uint16_t read_adc(uint8_t channel) {
+uint16_t read_adc(uint8_t channel)
+{
     ADMUX = (ADMUX & 0xF0) | (channel & 0x0F); // Seleciona canal
  128:	ec e7       	ldi	r30, 0x7C	; 124
  12a:	f0 e0       	ldi	r31, 0x00	; 0
@@ -244,16 +254,17 @@ uint16_t read_adc(uint8_t channel) {
  130:	8f 70       	andi	r24, 0x0F	; 15
  132:	89 2b       	or	r24, r25
  134:	80 83       	st	Z, r24
-    ADCSRA |= (1 << ADSC);      // Inicia conversão
+    ADCSRA |= (1 << ADSC);                     // Inicia conversï¿½o
  136:	ea e7       	ldi	r30, 0x7A	; 122
  138:	f0 e0       	ldi	r31, 0x00	; 0
  13a:	80 81       	ld	r24, Z
  13c:	80 64       	ori	r24, 0x40	; 64
  13e:	80 83       	st	Z, r24
-    while (ADCSRA & (1 << ADSC)); // Aguarda
+    while (ADCSRA & (1 << ADSC))
  140:	80 91 7a 00 	lds	r24, 0x007A	; 0x80007a <__TEXT_REGION_LENGTH__+0x7f807a>
  144:	86 fd       	sbrc	r24, 6
  146:	fc cf       	rjmp	.-8      	; 0x140 <read_adc+0x18>
+        ; // Aguarda
     return ADC;
  148:	80 91 78 00 	lds	r24, 0x0078	; 0x800078 <__TEXT_REGION_LENGTH__+0x7f8078>
  14c:	90 91 79 00 	lds	r25, 0x0079	; 0x800079 <__TEXT_REGION_LENGTH__+0x7f8079>
@@ -263,28 +274,33 @@ uint16_t read_adc(uint8_t channel) {
 00000152 <setup_timer0_buzzer>:
 
 // ---------- TIMER0 (BUZZER) ----------
-void setup_timer0_buzzer(void) {
-    TCCR0A = (1 << WGM01);       // Modo CTC
+void setup_timer0_buzzer(void)
+{
+    TCCR0A = (1 << WGM01);              // Modo CTC
  152:	82 e0       	ldi	r24, 0x02	; 2
  154:	84 bd       	out	0x24, r24	; 36
     TCCR0B = (1 << CS01) | (1 << CS00); // Prescaler 64
  156:	93 e0       	ldi	r25, 0x03	; 3
  158:	95 bd       	out	0x25, r25	; 37
-    TIMSK0 = (1 << OCIE0A);      // Habilita interrupção
+    TIMSK0 = (1 << OCIE0A);             // Habilita interrupï¿½ï¿½o
  15a:	80 93 6e 00 	sts	0x006E, r24	; 0x80006e <__TEXT_REGION_LENGTH__+0x7f806e>
  15e:	08 95       	ret
 
 00000160 <set_buzzer_freq>:
 }
 
-void set_buzzer_freq(uint16_t freq) {
-    if (freq == 0) {
+void set_buzzer_freq(uint16_t freq)
+{
+    if (freq == 0)
  160:	00 97       	sbiw	r24, 0x00	; 0
  162:	19 f4       	brne	.+6      	; 0x16a <set_buzzer_freq+0xa>
+    {
         alarmOn = 0;
  164:	10 92 00 01 	sts	0x0100, r1	; 0x800100 <__DATA_REGION_ORIGIN__>
  168:	08 95       	ret
-    } else {
+    }
+    else
+    {
         uint8_t compareValue = (F_CPU / (2UL * 64UL * freq)) - 1;
  16a:	a0 e0       	ldi	r26, 0x00	; 0
  16c:	b0 e0       	ldi	r27, 0x00	; 0
@@ -332,11 +348,11 @@ void set_buzzer_freq(uint16_t freq) {
  1c0:	08 95       	ret
 
 000001c2 <setup_timer1_servo>:
-    }
 }
 
 // ---------- TIMER1 (SERVO PWM) ----------
-void setup_timer1_servo(void) {
+void setup_timer1_servo(void)
+{
     DDRB |= (1 << SERVO_PIN);
  1c2:	84 b1       	in	r24, 0x04	; 4
  1c4:	82 60       	ori	r24, 0x02	; 2
@@ -350,12 +366,12 @@ void setup_timer1_servo(void) {
  1ce:	8a e1       	ldi	r24, 0x1A	; 26
  1d0:	80 93 81 00 	sts	0x0081, r24	; 0x800081 <__TEXT_REGION_LENGTH__+0x7f8081>
 
-    ICR1 = 39999;           // Define ciclo de 20ms
+    ICR1 = 39999;      // Define ciclo de 20ms
  1d4:	8f e3       	ldi	r24, 0x3F	; 63
  1d6:	9c e9       	ldi	r25, 0x9C	; 156
  1d8:	90 93 87 00 	sts	0x0087, r25	; 0x800087 <__TEXT_REGION_LENGTH__+0x7f8087>
  1dc:	80 93 86 00 	sts	0x0086, r24	; 0x800086 <__TEXT_REGION_LENGTH__+0x7f8086>
-    OCR1A = SERVO_MIN;      // Posição inicial
+    OCR1A = SERVO_MIN; // Posiï¿½ï¿½o inicial
  1e0:	80 ed       	ldi	r24, 0xD0	; 208
  1e2:	97 e0       	ldi	r25, 0x07	; 7
  1e4:	90 93 89 00 	sts	0x0089, r25	; 0x800089 <__TEXT_REGION_LENGTH__+0x7f8089>
@@ -365,8 +381,9 @@ void setup_timer1_servo(void) {
 000001ee <map_value>:
 }
 
-// ---------- FUNÇÕES GERAIS ----------
-long map_value(long x, long in_min, long in_max, long out_min, long out_max) {
+// ---------- FUNï¿½ï¿½ES GERAIS ----------
+long map_value(long x, long in_min, long in_max, long out_min, long out_max)
+{
  1ee:	4f 92       	push	r4
  1f0:	5f 92       	push	r5
  1f2:	6f 92       	push	r6
@@ -435,7 +452,8 @@ long map_value(long x, long in_min, long in_max, long out_min, long out_max) {
 
 00000270 <apaga_leds>:
 
-void apaga_leds(void) {
+void apaga_leds(void)
+{
     PORTB &= ~(1 << LED_VERDE);
  270:	85 b1       	in	r24, 0x05	; 5
  272:	8e 7f       	andi	r24, 0xFE	; 254
@@ -457,7 +475,8 @@ void apaga_leds(void) {
 0000028a <pisca_led_status>:
 }
 
-void pisca_led_status(void) {
+void pisca_led_status(void)
+{
     PORTD |= (1 << LED_STATUS);
  28a:	8b b1       	in	r24, 0x0b	; 11
  28c:	88 60       	ori	r24, 0x08	; 8
@@ -488,21 +507,23 @@ void pisca_led_status(void) {
  2ae:	08 95       	ret
 
 000002b0 <verifica_acao_motor>:
-    _delay_ms(8);
 }
 
 // ---------- COMANDO DO SERVO POR UART ----------
-void verifica_acao_motor(void) {
-    if (uart_available()) {
+void verifica_acao_motor(void)
+{
+    if (uart_available())
  2b0:	0e 94 7e 00 	call	0xfc	; 0xfc <uart_available>
  2b4:	89 2b       	or	r24, r25
  2b6:	c9 f0       	breq	.+50     	; 0x2ea <verifica_acao_motor+0x3a>
+    {
         char comando = UDR0;
  2b8:	80 91 c6 00 	lds	r24, 0x00C6	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7f80c6>
 
-        if (comando == 'A') {
+        if (comando == 'A')
  2bc:	81 34       	cpi	r24, 0x41	; 65
  2be:	51 f4       	brne	.+20     	; 0x2d4 <verifica_acao_motor+0x24>
+        {
             PORTB |= (1 << LED_ACAO);
  2c0:	85 b1       	in	r24, 0x05	; 5
  2c2:	80 62       	ori	r24, 0x20	; 32
@@ -514,9 +535,10 @@ void verifica_acao_motor(void) {
  2ce:	80 93 88 00 	sts	0x0088, r24	; 0x800088 <__TEXT_REGION_LENGTH__+0x7f8088>
  2d2:	08 95       	ret
         }
-        else if (comando == 'F') {
+        else if (comando == 'F')
  2d4:	86 34       	cpi	r24, 0x46	; 70
  2d6:	49 f4       	brne	.+18     	; 0x2ea <verifica_acao_motor+0x3a>
+        {
             PORTB &= ~(1 << LED_ACAO);
  2d8:	85 b1       	in	r24, 0x05	; 5
  2da:	8f 7d       	andi	r24, 0xDF	; 223
@@ -529,12 +551,12 @@ void verifica_acao_motor(void) {
  2ea:	08 95       	ret
 
 000002ec <ler_sensor_e_atualizar>:
-        }
     }
 }
 
-// ---------- SENSOR LDR / LÓGICA DO SISTEMA ----------
-int ler_sensor_e_atualizar(void) {
+// ---------- SENSOR LDR / Lï¿½GICA DO SISTEMA ----------
+int ler_sensor_e_atualizar(void)
+{
  2ec:	af 92       	push	r10
  2ee:	bf 92       	push	r11
  2f0:	cf 92       	push	r12
@@ -545,7 +567,7 @@ int ler_sensor_e_atualizar(void) {
  2fa:	1f 93       	push	r17
  2fc:	cf 93       	push	r28
  2fe:	df 93       	push	r29
-    uint16_t ldrValue = read_adc(0);               // Lê ADC
+    uint16_t ldrValue = read_adc(0); // Lï¿½ ADC
  300:	80 e0       	ldi	r24, 0x00	; 0
  302:	0e 94 94 00 	call	0x128	; 0x128 <read_adc>
     int valorLuminosidade = map_value(ldrValue, 0, 1023, 0, 100);
@@ -585,10 +607,11 @@ int ler_sensor_e_atualizar(void) {
  346:	90 e0       	ldi	r25, 0x00	; 0
  348:	0e 94 b0 00 	call	0x160	; 0x160 <set_buzzer_freq>
 
-    if (valorLuminosidade <= LIM_MUITO_BAIXA_MAX) {
+    if (valorLuminosidade <= LIM_MUITO_BAIXA_MAX)
  34c:	c0 31       	cpi	r28, 0x10	; 16
  34e:	d1 05       	cpc	r29, r1
  350:	44 f4       	brge	.+16     	; 0x362 <ler_sensor_e_atualizar+0x76>
+    {
         PORTB |= (1 << LED_VERMELHO);
  352:	85 b1       	in	r24, 0x05	; 5
  354:	84 60       	ori	r24, 0x04	; 4
@@ -599,47 +622,52 @@ int ler_sensor_e_atualizar(void) {
  35c:	0e 94 b0 00 	call	0x160	; 0x160 <set_buzzer_freq>
  360:	23 c0       	rjmp	.+70     	; 0x3a8 <ler_sensor_e_atualizar+0xbc>
     }
-    else if (valorLuminosidade <= LIM_BAIXA_MAX) {
+    else if (valorLuminosidade <= LIM_BAIXA_MAX)
  362:	cf 31       	cpi	r28, 0x1F	; 31
  364:	d1 05       	cpc	r29, r1
  366:	24 f4       	brge	.+8      	; 0x370 <ler_sensor_e_atualizar+0x84>
+    {
         PORTB |= (1 << LED_VERMELHO);
  368:	85 b1       	in	r24, 0x05	; 5
  36a:	84 60       	ori	r24, 0x04	; 4
  36c:	85 b9       	out	0x05, r24	; 5
  36e:	1c c0       	rjmp	.+56     	; 0x3a8 <ler_sensor_e_atualizar+0xbc>
     }
-    else if (valorLuminosidade <= LIM_MEDIA_MAX) {
+    else if (valorLuminosidade <= LIM_MEDIA_MAX)
  370:	c3 33       	cpi	r28, 0x33	; 51
  372:	d1 05       	cpc	r29, r1
  374:	24 f4       	brge	.+8      	; 0x37e <ler_sensor_e_atualizar+0x92>
+    {
         PORTD |= (1 << LED_AMARELO);
  376:	8b b1       	in	r24, 0x0b	; 11
  378:	80 61       	ori	r24, 0x10	; 16
  37a:	8b b9       	out	0x0b, r24	; 11
  37c:	15 c0       	rjmp	.+42     	; 0x3a8 <ler_sensor_e_atualizar+0xbc>
     }
-    else if (valorLuminosidade <= LIM_IDEAL_MAX) {
+    else if (valorLuminosidade <= LIM_IDEAL_MAX)
  37e:	c7 34       	cpi	r28, 0x47	; 71
  380:	d1 05       	cpc	r29, r1
  382:	24 f4       	brge	.+8      	; 0x38c <ler_sensor_e_atualizar+0xa0>
+    {
         PORTB |= (1 << LED_VERDE);
  384:	85 b1       	in	r24, 0x05	; 5
  386:	81 60       	ori	r24, 0x01	; 1
  388:	85 b9       	out	0x05, r24	; 5
  38a:	0e c0       	rjmp	.+28     	; 0x3a8 <ler_sensor_e_atualizar+0xbc>
     }
-    else if (valorLuminosidade <= LIM_MUITO_ALTA_MIN) {
+    else if (valorLuminosidade <= LIM_MUITO_ALTA_MIN)
  38c:	cb 35       	cpi	r28, 0x5B	; 91
  38e:	d1 05       	cpc	r29, r1
  390:	24 f4       	brge	.+8      	; 0x39a <ler_sensor_e_atualizar+0xae>
+    {
         PORTD |= (1 << LED_AMARELO);
  392:	8b b1       	in	r24, 0x0b	; 11
  394:	80 61       	ori	r24, 0x10	; 16
  396:	8b b9       	out	0x0b, r24	; 11
  398:	07 c0       	rjmp	.+14     	; 0x3a8 <ler_sensor_e_atualizar+0xbc>
     }
-    else {
+    else
+    {
         PORTB |= (1 << LED_VERMELHO);
  39a:	85 b1       	in	r24, 0x05	; 5
  39c:	84 60       	ori	r24, 0x04	; 4
@@ -666,12 +694,12 @@ int ler_sensor_e_atualizar(void) {
  3be:	08 95       	ret
 
 000003c0 <main>:
-    } else {
         PORTD &= ~(1 << BUZZER_PIN); // Garante buzzer desligado
     }
 }
 
-int main(void) {
+int main(void)
+{
  3c0:	cf 93       	push	r28
  3c2:	df 93       	push	r29
  3c4:	cd b7       	in	r28, 0x3d	; 61
@@ -685,12 +713,12 @@ int main(void) {
     char stringLuminosidade[10];
     int valorLuminosidade;
 
-    // Inicializações
+    // Inicializaï¿½ï¿½es
     setup_gpio();
  3d4:	0e 94 83 00 	call	0x106	; 0x106 <setup_gpio>
     setup_adc();
  3d8:	0e 94 8d 00 	call	0x11a	; 0x11a <setup_adc>
-    setup_uart(103);             // UBRR = 103 ? 9600 baud
+    setup_uart(103); // UBRR = 103 ? 9600 baud
  3dc:	87 e6       	ldi	r24, 0x67	; 103
  3de:	90 e0       	ldi	r25, 0x00	; 0
  3e0:	0e 94 5f 00 	call	0xbe	; 0xbe <setup_uart>
@@ -698,10 +726,10 @@ int main(void) {
  3e4:	0e 94 a9 00 	call	0x152	; 0x152 <setup_timer0_buzzer>
     setup_timer1_servo();
  3e8:	0e 94 e1 00 	call	0x1c2	; 0x1c2 <setup_timer1_servo>
-    
-    sei();                       // Habilita interrupções globais
+
+    sei(); // Habilita interrupï¿½ï¿½es globais
  3ec:	78 94       	sei
-    
+
     apaga_leds();
  3ee:	0e 94 38 01 	call	0x270	; 0x270 <apaga_leds>
     PORTD &= ~(1 << LED_STATUS);
@@ -709,14 +737,15 @@ int main(void) {
  3f4:	87 7f       	andi	r24, 0xF7	; 247
  3f6:	8b b9       	out	0x0b, r24	; 11
 
-    OCR1A = SERVO_MIN;          // Servo começa fechado
+    OCR1A = SERVO_MIN; // Servo comeï¿½a fechado
  3f8:	80 ed       	ldi	r24, 0xD0	; 208
  3fa:	97 e0       	ldi	r25, 0x07	; 7
  3fc:	90 93 89 00 	sts	0x0089, r25	; 0x800089 <__TEXT_REGION_LENGTH__+0x7f8089>
  400:	80 93 88 00 	sts	0x0088, r24	; 0x800088 <__TEXT_REGION_LENGTH__+0x7f8088>
 
-    while (1) {
-        // Lê sensor e atualiza LEDs/buzzer
+    while (1)
+    {
+        // Lï¿½ sensor e atualiza LEDs/buzzer
         valorLuminosidade = ler_sensor_e_atualizar();
  404:	0e 94 76 01 	call	0x2ec	; 0x2ec <ler_sensor_e_atualizar>
     } else if (__radix < 2 || __radix > 36) {
@@ -730,7 +759,7 @@ int main(void) {
  40c:	6f 5f       	subi	r22, 0xFF	; 255
  40e:	7f 4f       	sbci	r23, 0xFF	; 255
  410:	0e 94 8a 02 	call	0x514	; 0x514 <__itoa_ncheck>
-        
+
         // Converte para texto
         itoa(valorLuminosidade, stringLuminosidade, 10);
 
@@ -743,9 +772,9 @@ int main(void) {
  41c:	8a e0       	ldi	r24, 0x0A	; 10
  41e:	0e 94 6a 00 	call	0xd4	; 0xd4 <uart_transmit>
 
-        verifica_acao_motor();  // Processa comandos UART ('A' / 'F')
+        verifica_acao_motor(); // Processa comandos UART ('A' / 'F')
  422:	0e 94 58 01 	call	0x2b0	; 0x2b0 <verifica_acao_motor>
-        pisca_led_status();     // Pisca LED de atividade
+        pisca_led_status();    // Pisca LED de atividade
  426:	0e 94 45 01 	call	0x28a	; 0x28a <pisca_led_status>
  42a:	2f ef       	ldi	r18, 0xFF	; 255
  42c:	89 e6       	ldi	r24, 0x69	; 105
